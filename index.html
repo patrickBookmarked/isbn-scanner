@@ -27,6 +27,7 @@
   </table>
   <input id="webAppUrl" type="url" placeholder="Paste Web App URL here" value="https://script.google.com/macros/s/AKfycbwvUwTmeJEY-USQvmprCGir944cqJ53kohjDXXGkfkoiWr-pYhTn_lRf13JzTdcG1s_qA/exec" />
   <button id="sendBtn">Send to Sheet</button>
+  <button id="downloadBtn">Download CSV</button>
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
@@ -90,6 +91,23 @@
         console.error(err);
         alert('Error sending data: ' + err);
       });
+    });
+    const downloadBtn = document.getElementById('downloadBtn');
+    downloadBtn.addEventListener('click', () => {
+      if (scannedIsbns.length === 0) {
+        alert('No ISBNs scanned yet.');
+        return;
+      }
+      const csvContent = scannedIsbns.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'isbns.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
   </script>
 </body>
