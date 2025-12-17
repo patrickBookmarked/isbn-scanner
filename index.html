@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ISBN Scanner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 1rem;
+    }
+    video {
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ccc;
+    }
+    #result {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    button {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>ISBN Barcode Scanner</h2>
+
+  <video id="video" autoplay></video>
+
+  <button id="startBtn">Start Scanning</button>
+
+  <div id="result">ISBN: —</div>
+
+  <script>
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    const videoElement = document.getElementById('video');
+    const resultDiv = document.getElementById('result');
+    const startBtn = document.getElementById('startBtn');
+
+    startBtn.addEventListener('click', async () => {
+      resultDiv.textContent = 'Scanning…';
+
+      try {
+        const devices = await ZXing.BrowserBarcodeReader.listVideoInputDevices();
+        const deviceId = devices[0].deviceId;
+
+        codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
+          if (result) {
+            const isbn = result.text;
+            resultDiv.textContent = `ISBN: ${isbn}`;
+
+            // Stop scanning after successful read
+            codeReader.reset();
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        resultDiv.textContent = 'Camera access failed.';
+      }
+    });
+  </script>
+</body>
+</html>
