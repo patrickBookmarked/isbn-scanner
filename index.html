@@ -13,6 +13,7 @@
     table { margin-top: 1rem; width: 100%; max-width: 400px; margin-left:auto; margin-right:auto; border-collapse: collapse; }
     th, td { border: 1px solid #ccc; padding: 0.5rem; }
     th { background-color: #f0f0f0; }
+    input[type="url"] { width:100%; max-width:400px; padding:0.5rem; margin-top:1rem; }
   </style>
 </head>
 <body>
@@ -24,6 +25,8 @@
     <thead><tr><th>#</th><th>ISBN</th></tr></thead>
     <tbody></tbody>
   </table>
+  <input id="webAppUrl" type="url" placeholder="Paste Web App URL here" value="https://script.google.com/macros/s/AKfycbwvUwTmeJEY-USQvmprCGir944cqJ53kohjDXXGkfkoiWr-pYhTn_lRf13JzTdcG1s_qA/exec" />
+  <button id="sendBtn">Send to Sheet</button>
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
@@ -61,6 +64,32 @@
         console.error(err);
         resultDiv.textContent = 'Camera access failed.';
       }
+    });
+    const sendBtn = document.getElementById('sendBtn');
+    const webAppInput = document.getElementById('webAppUrl');
+    sendBtn.addEventListener('click', () => {
+      const url = webAppInput.value.trim();
+      if (!url) {
+        alert('Please paste your Web App URL first.');
+        return;
+      }
+      if (scannedIsbns.length === 0) {
+        alert('No ISBNs scanned yet.');
+        return;
+      }
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(scannedIsbns),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert('Sent to Google Sheet: ' + msg);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error sending data: ' + err);
+      });
     });
   </script>
 </body>
