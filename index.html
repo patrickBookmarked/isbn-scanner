@@ -48,17 +48,12 @@
 
     startBtn.addEventListener('click', async () => {
       resultDiv.textContent = 'Scanning…';
-
       try {
-        const devices = await ZXing.BrowserBarcodeReader.listVideoInputDevices();
-        const deviceId = devices[0].deviceId;
-
-        codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
+        const constraints = { video: { facingMode: { ideal: 'environment' } } };
+        codeReader.decodeFromConstraints(constraints, videoElement, (result, err) => {
           if (result) {
             const isbn = result.text;
             resultDiv.textContent = `ISBN: ${isbn}`;
-
-            // Stop scanning after successful read
             codeReader.reset();
           }
         });
