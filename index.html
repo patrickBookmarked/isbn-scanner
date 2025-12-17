@@ -4,48 +4,46 @@
   <meta charset="UTF-8" />
   <title>ISBN Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <script src="https://unpkg.com/@zxing/library@latest"></script>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 1rem;
-    }
-    video {
-      width: 100%;
-      max-width: 400px;
-      border: 1px solid #ccc;
-    }
-    #result {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    button {
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      margin-top: 1rem;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 1rem; }
+    video { width: 100%; max-width: 400px; border: 1px solid #ccc; }
+    #result { margin-top: 1rem; font-size: 1.2rem; font-weight: bold; }
+    button { padding: 0.75rem 1rem; font-size: 1rem; margin-top: 1rem; }
+    table { margin-top: 1rem; width: 100%; max-width: 400px; margin-left:auto; margin-right:auto; border-collapse: collapse; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; }
+    th { background-color: #f0f0f0; }
   </style>
 </head>
-
 <body>
   <h2>ISBN Barcode Scanner</h2>
-
   <video id="video" autoplay></video>
-
   <button id="startBtn">Start Scanning</button>
-
   <div id="result">ISBN: —</div>
-
+  <table id="isbnTable">
+    <thead><tr><th>#</th><th>ISBN</th></tr></thead>
+    <tbody></tbody>
+  </table>
   <script>
     const codeReader = new ZXing.BrowserBarcodeReader();
     const videoElement = document.getElementById('video');
     const resultDiv = document.getElementById('result');
     const startBtn = document.getElementById('startBtn');
-
+    const isbnTableBody = document.querySelector('#isbnTable tbody');
+    const scannedIsbns = [];
+    function updateTable() {
+      isbnTableBody.innerHTML = '';
+      scannedIsbns.forEach((isbn, index) => {
+        const row = document.createElement('tr');
+        const cellIndex = document.createElement('td');
+        cellIndex.textContent = index + 1;
+        const cellIsbn = document.createElement('td');
+        cellIsbn.textContent = isbn;
+        row.appendChild(cellIndex);
+        row.appendChild(cellIsbn);
+        isbnTableBody.appendChild(row);
+      });
+    }
     startBtn.addEventListener('click', async () => {
       resultDiv.textContent = 'Scanning…';
       try {
@@ -54,6 +52,8 @@
           if (result) {
             const isbn = result.text;
             resultDiv.textContent = `ISBN: ${isbn}`;
+            scannedIsbns.push(isbn);
+            updateTable();
             codeReader.reset();
           }
         });
